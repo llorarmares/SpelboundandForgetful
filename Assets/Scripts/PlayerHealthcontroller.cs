@@ -2,37 +2,34 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class PlayerHealthcontroller : MonoBehaviour
+public class PlayerHealthController : MonoBehaviour
 {
-   public static PlayerHealthcontroller instance;
+   public static PlayerHealthController instance;
    public int currentHealth, maxHealth;
 
-
-   private void _Awake ()
-
+   private void Awake() 
    {
-    instance = this;
+       instance = this;
    }
-    void Start()
-    {
-        
-    }
 
-    // Update is called once per frame
-    void Update()
-    {
-        
-    }
+   void Start()
+   {
+       currentHealth = maxHealth;
+   }
 
-    public void DealDamage()
-    {
-        currentHealth--;
+   void Update()
+   {
+       
+   }
 
-        if(currentHealth<=0)
-        {
-            gameObject.SetActive(false);
-        }
+   public void DealDamage()
+   {
+       currentHealth--;
 
+       if (currentHealth <= 0)
+       {
+           gameObject.SetActive(false);
+       }
 
-    }
+   }
 }

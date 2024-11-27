@@ -12,7 +12,7 @@ TagManager:
   - Water
   - UI
   - Ground
-  - 
+  - MainCamera
   - 
   - 
   - 
@@ -41,11 +41,11 @@ TagManager:
   - name: Background
     uniqueID: 2469748705
     locked: 0
-  - name: World
-    uniqueID: 3713907797
-    locked: 0
   - name: Default
     uniqueID: 0
+    locked: 0
+  - name: World
+    uniqueID: 3713907797
     locked: 0
   - name: Player
     uniqueID: 638437909

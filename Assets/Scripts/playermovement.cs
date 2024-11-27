@@ -4,75 +4,85 @@ using UnityEngine;
 
 public class PlayerMovement : MonoBehaviour
 {
+    private Rigidbody2D rb2D;
+
     [Header("Movement")]
-    public float moveSpeed;
+    private float horizontalMovement = 0f;
+    [SerializeField] private float movementSpeed;
+    [Range(0, 0.3f)][SerializeField] private float movementSmoothing;
+    private Vector3 velocity = Vector3.zero;
+    private bool facingRight = true;
 
     [Header("Jump")]
-    private bool _canDoubleJump;
-    public float JumpForce;
+    [SerializeField] private float jumpForce;
+    [SerializeField] private LayerMask groundLayer;
+    [SerializeField] private Transform groundCheck;
+    [SerializeField] private Vector3 boxDimensions;
+    [SerializeField] private bool isGrounded;
+    private bool jump = false;
 
-    [Header("Components")]
-    public Rigidbody2D theRB;
+    [Header("Animation")]
+    private Animator animator;
 
-    [Header("Animator")]
-    private Animator _anim;
-    private SpriteRenderer _theSR;
-
-    [Header("Grounded")]
-    private bool _IsGrounded;
-    public Transform groundCheckpoint;
-    public LayerMask WhatIsGround;
-
-    void Start()
+    private void Start()
     {
-        
-        _anim = GetComponent<Animator>();
-        _theSR = GetComponent<SpriteRenderer> ();
-        
-        
-       
+        rb2D = GetComponent<Rigidbody2D>();
+        animator = GetComponent<Animator>();
     }
 
-    void Update()
+    private void Update()
     {
-        // Movimiento horizontal
-        theRB.velocity = new Vector2(moveSpeed * Input.GetAxis("Horizontal"), theRB.velocity.y);
+        horizontalMovement = Input.GetAxisRaw("Horizontal") * movementSpeed;
 
-        // Verificar si el personaje está en el suelo
-        _IsGrounded = Physics2D.OverlapCircle(groundCheckpoint.position, 0.2f, WhatIsGround);
-
-        // Control de salto
-        if (_IsGrounded)
-        {
-            _canDoubleJump = true; // Permitir doble salto cuando está en el suelo
-        }
+        animator.SetFloat("Horizontal", Mathf.Abs(horizontalMovement));
 
         if (Input.GetButtonDown("Jump"))
         {
-            if (_IsGrounded) 
-            {
-                theRB.velocity = new Vector2(theRB.velocity.x, JumpForce);
-            }
-            else if (_canDoubleJump) 
-            {
-                theRB.velocity = new Vector2(theRB.velocity.x, JumpForce);
-                _canDoubleJump = false; // Deshabilitar doble salto
-            }
+            jump = true;
         }
+    }
 
-        // Actualizar animaciones
-         if (theRB.velocity.x < 0)
+    private void FixedUpdate()
+    {
+        isGrounded = Physics2D.OverlapBox(groundCheck.position, boxDimensions, 0f, groundLayer);
+
+        Move(horizontalMovement * Time.fixedDeltaTime, jump);
+
+        jump = false;
+    }
+
+    private void Move(float move, bool jump)
+    {
+        Vector3 targetVelocity = new Vector2(move, rb2D.velocity.y);
+        rb2D.velocity = Vector3.SmoothDamp(rb2D.velocity, targetVelocity, ref velocity, movementSmoothing);
+
+        if (move > 0 && !facingRight)
         {
-            _theSR.flipX = true;
-        } else if (theRB.velocity.x > 0)
-
-        { 
-            _theSR.flipX = false;
-        
+            Flip();
         }
-        
-        _anim.SetFloat("moveSpeed", Mathf.Abs(theRB.velocity.x));
-        _anim.SetBool("_IsGrounded", _IsGrounded);
+        else if (move < 0 && facingRight)
+        {
+            Flip();
+        }
+
+        if (isGrounded && jump)
+        {
+            isGrounded = false;
+            rb2D.AddForce(new Vector2(0f, jumpForce));
+        }
+    }
+
+    private void Flip()
+    {
+        facingRight = !facingRight;
+        Vector3 scale = transform.localScale;
+        scale.x *= -1;
+        transform.localScale = scale;
+    }
+
+    private void OnDrawGizmos()
+    {
+        Gizmos.color = Color.yellow;
+        Gizmos.DrawWireCube(groundCheck.position, boxDimensions);
     }
 }
-

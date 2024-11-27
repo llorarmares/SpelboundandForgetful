@@ -4,26 +4,15 @@ using UnityEngine;
 
 public class DamagePlayer : MonoBehaviour
 {
-    
-
-    void Start()
+    private void OnTriggerEnter2D(Collider2D other)  
     {
-        
+        // Verifica si el objeto que entra en el collider tiene la etiqueta "Player"
+        if (other.tag == "Player")  
+        {
+            // Aplica daño al jugador usando el controlador de salud
+            PlayerHealthController.instance.DealDamage();  
+        }
     }
-
-    // Update is called once per frame
-    void Update()
-    {
-        
-    }
-
-    private void _OnTriggerEnter2D (Collider2D other)
-{
-   if (other.tag == "Player")
-   {
-      PlayerHealthcontroller.instance.DealDamage();
-
-   }
-
 }
-}
+
+
